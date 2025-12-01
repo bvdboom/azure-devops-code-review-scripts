@@ -1,0 +1,39 @@
+trigger: none
+
+pool:
+  vmImage: ubuntu-latest
+
+variables:
+- group: vg-foundry
+
+steps:
+- checkout: self
+  persistCredentials: true
+  fetchDepth: 0
+
+- task: AzurePowerShell@5
+  displayName: 'Automated Code Reviewer'
+  inputs:
+    azureSubscription: sc-devops-code-reviewer
+    ScriptType: 'InlineScript'
+    azurePowerShellVersion: LatestVersion
+    pwsh: true
+    Inline: |
+      . ./Get-CodeChanges.ps1
+      . ./Invoke-LLMCodeReview.ps1
+      . ./Set-PullRequestComments.ps1
+
+      [string]$changes = Invoke-LLMCodeReview `
+        -SourceBranch $(System.PullRequest.SourceBranch) `
+        -TargetBranch $(System.PullRequest.TargetBranchName) `
+        -PathToReviewFile './Generic.reviewpromtpfile.md' `
+        -ModelName 'gpt-5.1-chat' `
+        -ModelDeploymentUrl 'https://aip-johnlokerse-codereviewer.cognitiveservices.azure.com/openai/deployments/gpt-5.1-chat/chat/completions?api-version=2025-01-01-preview' `
+        -Key $(foundry-key)
+
+      Set-PullRequestComments `
+        -Organization ("$(System.CollectionUri)" -split "/" | Select-Object -index 3) `
+        -PullRequestId $(System.PullRequest.PullRequestId) `
+        -Project $(System.TeamProject) `
+        -RepositoryName $(Build.Repository.Name) `
+        -Reviews $changes
