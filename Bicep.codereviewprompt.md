@@ -85,7 +85,7 @@ Azure DevOps allows you to do code suggestions. Use the following format for you
 
 ALWAYS include a suggested fix showing the corrected code. Format:
 
-"<emoji> <SEVERITY>: <friendly explanation>
+"<emoji> <SEVERITY>: <friendly explanation>"
 
 Suggested fix:
 
