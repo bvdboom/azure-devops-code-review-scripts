@@ -51,7 +51,7 @@ function Get-CodeChanges {
                 if ($hunkContent.Count -gt 0) {
                     $llmOutput += "### Changes: +$addedLines lines, -$removedLines lines`n"
                     $llmOutput += ($hunkContent -join "`n")
-                    $llmOutput += "`n```n`n"
+                    $llmOutput += "`n`n"
                 }
 
                 # Reset for new hunk
