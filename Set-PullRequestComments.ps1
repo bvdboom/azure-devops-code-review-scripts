@@ -92,7 +92,6 @@ function Set-PullRequestComments {
             }
             
             try {
-                # Use PUT to add/update reviewer with vote (works whether reviewer exists or not)
                 $null = Invoke-RestMethod -Uri $approveUrl -Headers $headers -Method Put -Body ($approveBody | ConvertTo-Json -Depth 10)
                 Write-Host "Pull request approved successfully." -ForegroundColor Green
             }
