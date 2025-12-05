@@ -18,7 +18,11 @@ function Set-PullRequestComments {
 
         [parameter(Mandatory)]
         [string]
-        $Reviews
+        $Reviews,
+
+        [parameter()]
+        [switch]
+        $AutoApprove
     )
 
     $token = (New-Object System.Management.Automation.PSCredential("token", (Get-AzAccessToken -ResourceUrl "499b84ac-1321-427f-aa17-267ca6975798" -AsSecureString).token)).GetNetworkCredential().Password
@@ -77,6 +81,26 @@ function Set-PullRequestComments {
     $reviewsObject = $Reviews | ConvertFrom-Json
     if ($null -eq $reviewsObject.reviews -or $reviewsObject.reviews.Count -eq 0) {
         Write-Host "No reviews to post."
+        
+        if ($AutoApprove) {
+            Write-Host "AutoApprove enabled: Approving pull request..." -ForegroundColor Cyan
+            $reviewerId = $connectionData.authenticatedUser.id
+            $approveUrl = "https://dev.azure.com/$Organization/$Project/_apis/git/repositories/$RepositoryName/pullRequests/$PullRequestId/reviewers/$($reviewerId)?api-version=7.1"
+            
+            $approveBody = @{
+                vote = 10
+            }
+            
+            try {
+                # Use PUT to add/update reviewer with vote (works whether reviewer exists or not)
+                $null = Invoke-RestMethod -Uri $approveUrl -Headers $headers -Method Put -Body ($approveBody | ConvertTo-Json -Depth 10)
+                Write-Host "Pull request approved successfully." -ForegroundColor Green
+            }
+            catch {
+                Write-Warning "Failed to approve pull request: $_"
+            }
+        }
+        
         return
     }
 
