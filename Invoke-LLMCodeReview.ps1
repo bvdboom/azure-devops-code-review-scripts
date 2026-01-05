@@ -108,8 +108,10 @@ function Invoke-LLMCodeReview {
 
     if ($ModelName -eq "model-router") {
         Write-Host "Response from $ModelName using $($response.model):"
+        Write-Host ($response.choices.message.content | ConvertTo-Json)
     } else {
         Write-Host "Response from $($ModelName):"
+        Write-Host ($response.choices.message.content | ConvertTo-Json)
     }
 
     return $response.choices.message.content
