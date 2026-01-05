@@ -7,7 +7,7 @@ function Get-CodeChanges {
     $renamedSourceBranch = $SourceBranch -replace 'refs/heads/', 'origin/'
     $renamedTargetBranch = $TargetBranch -replace 'refs/heads/', 'origin/'
 
-    # Step 1: Get changed code files only
+    # Get changed code files only
     $changedFiles = git diff --name-only --diff-filter=AM "$renamedTargetBranch...$renamedSourceBranch"
 
     # Add legend for diff markers
