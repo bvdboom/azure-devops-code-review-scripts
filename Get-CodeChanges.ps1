@@ -7,14 +7,12 @@ function Get-CodeChanges {
     $renamedSourceBranch = $SourceBranch -replace 'refs/heads/', 'origin/'
     $renamedTargetBranch = $TargetBranch -replace 'refs/heads/', 'origin/'
 
-    $null = git checkout $renamedTargetBranch
-
     # Step 1: Get changed code files only
-    $changedFiles = git diff --name-only --diff-filter=AM "$TargetBranch...$renamedSourceBranch"
+    $changedFiles = git diff --name-only --diff-filter=AM "$renamedTargetBranch...$renamedSourceBranch"
 
     # Add legend for diff markers
     $llmOutput = @"
-# Code Review - Changes from $renamedSourceBranch to $TargetBranch
+# Code Review - Changes from $renamedSourceBranch to $renamedTargetBranch
 
 ## Legend:
 - `+` = Added lines (new code)
@@ -32,7 +30,7 @@ function Get-CodeChanges {
         $fullPath = if ($file.StartsWith('/')) { $file } else { "/$file" }
 
         # Get the unified diff with more context
-        $diffLines = git diff "$TargetBranch...$renamedSourceBranch" --unified=5 -- $file
+        $diffLines = git diff "$renamedTargetBranch...$renamedSourceBranch" --unified=5 -- $file
 
         $llmOutput += "## File: $fullPath`n`n"
 
